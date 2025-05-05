@@ -10,7 +10,17 @@
         <div class="flex justify-between items-center mt-2">
           <img class="w-20 h-20 rounded-lg shadow-md" :src="item.imagem" alt="imagem do prato" />
           <span class="text-lg">Item: {{ item.nome }}</span>
-          <span class="text-lg">Quantidade: {{ item.quantidade }}</span>
+          <div class="flex items-center gap-2"> Quantidade:
+            <button @click="decrementar(index)" class="bg-yellow-200 hover:bg-yellow-300 text-black font-semibold px-3 py-1 rounded">
+              -
+            </button>
+
+            <span class="flex items-center gap-2">{{ item.quantidade }}</span>
+
+          <button @click="incrementar(index)" class="bg-yellow-200 hover:bg-yellow-300 text-black font-semibold px-3 py-1 rounded"> 
+             +
+            </button>
+          </div>
           <span class="text-lg">Valor unitário: R$ {{ item.valor.toFixed(2) }}</span>
           <span class="text-lg">Valor total: R$ {{ (item.valor * item.quantidade).toFixed(2) }}</span>
 
@@ -65,6 +75,17 @@ function calcularTotalCarrinho() {
   return props.informacaoCarrinho.produtos.reduce((total, item) => {
     return total + (item.valor * item.quantidade)
   }, 0)
+}
+
+// Funções para alterar a quantidade
+function incrementar(index) {
+  props.informacaoCarrinho.produtos[index].quantidade++
+}
+
+function decrementar(index) {
+  if (props.informacaoCarrinho.produtos[index].quantidade > 1) {
+    props.informacaoCarrinho.produtos[index].quantidade--
+  }
 }
 
 // Log para verificar as props ao carregar
