@@ -130,7 +130,7 @@
     </div>
   </div>
 
-  <!-- Modal Produtos-->
+  <!-- Modal Produtos
    <template v-if="tela === 'modalProduto'">
     <TransitionRoot as="template" :show="true">
       <Dialog class="relative z-10" @close="tela.value = 'cardapio'">
@@ -184,9 +184,9 @@
         </div>
       </Dialog>
     </TransitionRoot>
-  </template>
+  </template> -->
 
-  <!-- Modal de remover item -->
+  <!-- Modal de remover item
   <template v-if="tela === 'modalRemover'">
     <TransitionRoot as="template" :show="true">
       <Dialog class="relative z-10" @close="tela.value = 'cardapio'">
@@ -225,9 +225,9 @@
         </div>
       </Dialog>
     </TransitionRoot>
-  </template>
+  </template> -->
 
-  <!--  Modal de confirmação para finalizar compra -->
+   <!-- Modal de confirmação para finalizar compra
   <template v-if="tela === 'modalFinalizarCompra'">
     <TransitionRoot as="template" :show="true">
       <Dialog class="relative z-10" @close="tela.value = 'cardapio'">
@@ -270,9 +270,9 @@
         </div>
       </Dialog>
     </TransitionRoot>
-  </template>
+  </template> -->
   
-  <!-- Modal de sucesso da compra -->
+  <!-- Modal de sucesso da compra
   <template v-if="tela === 'modalSucessoCompra'">
   <TransitionRoot as="template" :show="true">
     <Dialog class="relative z-10" @close="tela.value = 'cardapio'">
@@ -304,7 +304,32 @@
       </div>
     </Dialog>
   </TransitionRoot>
-</template>
+</template> -->
+
+  <ModalSucessoCompra v-else-if="tela === 'modalSucessoCompra'"
+  @fechar="tela = 'cardapio'"
+  />
+      
+  <ModalFinalizarCompra v-else-if="tela === 'modalFinalizarCompra'"
+    :carrinho="carrinho"
+    @fechar="tela = 'carrinho'"
+    @finalizarCompraConfirmado="finalizarCompraConfirmado"
+  />
+
+  <ModalRemoverProduto v-else-if="tela === 'modalRemoverProduto'"
+    :carrinho="carrinho"
+    :itemParaRemover="itemSelecionado"
+    :informacaoCarrinho="carrinho"
+    @removerConfirmado="removerConfirmado($event)"
+    @fechar="tela = 'carrinho'"
+  />
+
+  <ModalProduto v-else-if="tela === 'modalProduto'"
+  :produtoSelecionado="produtoSelecionado"
+  :quantidadeSelecionada="quantidadeSelecionada"
+  @fechar="tela = 'cardapio'"
+  @adicionarProdutoAoCarrinho="adicionaCarrinho"
+  />
 
   <DetalhesProduto v-else-if="tela === 'detalhes'"
     :name="produtoSelecionado.nome"
@@ -313,11 +338,11 @@
     :imagem="produtoSelecionado.imagem"
     @fechar="tela = 'cardapio'"
     @foiAdicionado="adicionaCarrinho"
-   />
+    />
 
   <CarrinhoComponent v-else-if="tela === 'carrinho'"
     :informacaoCarrinho="carrinho"
-    @removerItem="pedirConfirmacaoRemover"
+    @abrirModalRemover="abrirModalRemoverProduto($event)"
     @finalizarCompra="pedirConfirmacaoFinalizar"
     @fechar="tela = 'cardapio'"
     @voltar="tela = 'cardapio'"
@@ -333,6 +358,10 @@ import DetalhesProduto from './DetalhesProduto.vue'
 import CarrinhoComponent from './CarrinhoComponent.vue'
 import { toast } from 'vue3-toastify';
 import 'vue3-toastify/dist/index.css';
+import ModalProduto from './ModalProduto.vue';
+import ModalRemoverProduto from './ModalRemoverProduto.vue'
+import ModalFinalizarCompra from './ModalFinalizarCompra.vue'
+import ModalSucessoCompra from './ModalSucessoCompra.vue'
 // fim da importaçÃo
 
 const tela = ref('cardapio')
@@ -340,8 +369,8 @@ const receitas = ref({})
 const produtoSelecionado = ref({})
 const carrinho = ref({
   produtos: [],
-  valor: 0
-})
+  valor: 0,
+ })
 
 const navigation = [
   { name: 'Bebidas', href: '#' },
@@ -353,11 +382,15 @@ const mobileMenuOpen = ref(false)
 
 function pedirConfirmacaoRemover(index) {
   itemParaRemover.value = index
-  tela.value = 'modalRemover'
+  tela.value = 'ModalRemoverProduto'
 }
 
-function removerConfirmado() {
-  const index = itemParaRemover.value;
+function abrirModalRemoverProduto(index) {
+  itemSelecionado.value = index;
+  tela.value = 'modalRemoverProduto';
+}
+
+function removerConfirmado(index) {
 
   if (index !== null && index >= 0) {
     // Remove completamente o item do carrinho
@@ -371,8 +404,8 @@ function removerConfirmado() {
   }
 
   // Fecha o modal e limpa o índice do item para remoção
-  tela.value = 'carrinho'
   itemParaRemover.value = null;
+  tela.value = 'carrinho'
 }
 
 // funções para alterar a quantidade
@@ -503,7 +536,6 @@ function abrirModalProduto(receita) {
   tela.value = 'modalProduto'
 }
 
-
 const abrirDetalhes = (receita) => {
   tela.value = 'detalhes';
   produtoSelecionado.value = {
@@ -518,6 +550,8 @@ const abrirDetalhes = (receita) => {
 const abrirCarrinho = () =>{
   tela.value = 'carrinho';
 }
+
+const itemSelecionado = ref(null)
 
 const adicionaCarrinho = (produtoAdicionado) => {
   const existente = carrinho.value.produtos.find(p => p.nome === produtoAdicionado.nome)

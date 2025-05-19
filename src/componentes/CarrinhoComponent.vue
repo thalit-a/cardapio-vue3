@@ -6,25 +6,24 @@
 
     <!-- Exibir os itens do carrinho se houver -->
     <div v-if="props.informacaoCarrinho.produtos.length > 0">
-      <div v-for="(item, index) in props.informacaoCarrinho.produtos" :key="index" class="mb-8 border p-4 rounded-lg shadow-md">
+      <div v-for="(produto, posicao) in props.informacaoCarrinho.produtos" :key="posicao" class="mb-8 border p-4 rounded-lg shadow-md">
         <div class="flex justify-between items-center mt-2">
-          <img class="w-20 h-20 rounded-lg shadow-md" :src="item.imagem" alt="imagem do prato" />
-          <span class="text-lg">Item: {{ item.nome }}</span>
-          <div class="flex items-center gap-2"> Quantidade:
-            <button @click="decrementar(index)" class="bg-yellow-200 hover:bg-yellow-300 text-black font-semibold px-3 py-1 rounded">
+          <img class="w-20 h-20 rounded-lg shadow-md" :src="produto.image" alt="imagem do prato" />
+          <span class="text-lg">Produto: {{ produto.nome }}</span>
+          <div class="flex produtos-center gap-2"> Quantidade:
+            <button @click="decrementar(posicao)" class="bg-yellow-200 hover:bg-yellow-300 text-black font-semibold px-3 py-1 rounded">
               -
             </button>
 
-            <span class="flex items-center gap-2">{{ item.quantidade }}</span>
+            <span class="flex produtos-center gap-2">{{ produto.quantidade }}</span>
 
-          <button @click="incrementar(index)" class="bg-yellow-200 hover:bg-yellow-300 text-black font-semibold px-3 py-1 rounded"> 
+          <button @click="incrementar(posicao)" class="bg-yellow-200 hover:bg-yellow-300 text-black font-semibold px-3 py-1 rounded"> 
              +
             </button>
           </div>
-          <span class="text-lg">Valor unitário: R$ {{ item.valor.toFixed(2) }}</span>
-          <span class="text-lg">Valor total: R$ {{ (item.valor * item.quantidade).toFixed(2) }}</span>
-
-          <button class="text-red-600 hover:bg-red-200 font-bold py-2 px-4 flex cursor-pointer" @click="pedirConfirmacaoRemover(index)">Remover</button>
+          <span class="text-lg">Valor unitário: R$ {{ produto.valor.toFixed(2) }}</span>
+          <span class="text-lg">Valor total: R$ {{ (produto.valor * produto.quantidade).toFixed(2) }}</span>
+          <button class="text-red-600 hover:bg-red-200 font-bold py-2 px-4 flex cursor-pointer" @click="abrirModalRemover(produto, posicao)">Remover</button>
         </div>
       </div>
 
@@ -54,37 +53,27 @@ const props = defineProps({
 })
 
 // Emissão de eventos para o componente pai
-const emit = defineEmits(["removerItem", "fechar", "finalizarCompra"])
+const emit = defineEmits(["abrirModalRemover", "fechar", "finalizarCompra"])
 
-function pedirConfirmacaoRemover(index) {
-  // Passando o índice correto para o método de remoção no componente pai
-  emit('removerItem', index);
-}
-
-function pedirConfirmacaoFinalizar() {
-  emit('finalizaCompra')
-}
-
-// Função para remover item do carrinho
-function removerItem(index) {
-  emit('removerItem', index); // Emitir evento para o componente pai
+function abrirModalRemover(produto, posicao) {
+  emit('abrirModalRemover', {produto, posicao});
 }
 
 // Função para calcular o total do carrinho
 function calcularTotalCarrinho() {
-  return props.informacaoCarrinho.produtos.reduce((total, item) => {
-    return total + (item.valor * item.quantidade)
+  return props.informacaoCarrinho.produtos.reduce((total, produto) => {
+    return total + (produto.valor * produto.quantidade)
   }, 0)
 }
 
 // Funções para alterar a quantidade
-function incrementar(index) {
-  props.informacaoCarrinho.produtos[index].quantidade++
+function incrementar(posicao) {
+  props.informacaoCarrinho.produtos[posicao].quantidade++
 }
 
-function decrementar(index) {
-  if (props.informacaoCarrinho.produtos[index].quantidade > 1) {
-    props.informacaoCarrinho.produtos[index].quantidade--
+function decrementar(posicao) {
+  if (props.informacaoCarrinho.produtos[posicao].quantidade > 1) {
+    props.informacaoCarrinho.produtos[posicao].quantidade--
   }
 }
 
